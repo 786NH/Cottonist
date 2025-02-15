@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:listview/view/components/addGrader.dart';
+import 'package:listview/components/addGrader.dart';
 import 'package:listview/view/showMatrixPage.dart';
 
 class DirectorDashboard extends StatefulWidget {
