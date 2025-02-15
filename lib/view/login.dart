@@ -1,7 +1,10 @@
-import 'dart:convert';
+
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:listview/controller/login_controller.dart';
+import 'package:listview/view/signup.dart';
+
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -10,44 +13,13 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+
+final loginController = Get.put(LoginController());
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool isLoading = false;
 
-  Future<void> login() async {
-    String url = 'https://www.shreshtacotton.com/api/login/';
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      var response = await http.post(Uri.parse(url),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({
-            "email": emailController.text.trim(),
-            "password": passwordController.text.trim(),
-          }));
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        print("Login Successful: ${data}");
-      } else {
-        print("Login Failed: ${response.body}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Invalid credentials, please try again.")),
-        );
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Something went wrong. Please try again.")),
-      );
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // Logo
             Center(
               child: Image.asset(
-                'assets/logo.png',
+                'assets/images/logo.png',
                 height: screenHeight * 0.15,
                 width: screenWidth * 0.3,
               ),
@@ -137,17 +109,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(
                     width: double.infinity,
-                    child: isLoading
+                    child:Obx(()=>
+                      loginController.isLoading.value
                         ? const SizedBox(
                             height: 30,
                             width: 30,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                              ),
                             ),
                           )
                         : ElevatedButton(
                             onPressed: () {
-                              login();
+                              loginController.login(
+                                emailController.text,
+                                passwordController.text
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
@@ -159,6 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 16)),
                           ),
+                    )
+                     
                   ),
                   SizedBox(height: 10),
                 ],
@@ -169,7 +149,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const Text("Don't Have an Account?"),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.to(()=>
+                SignUpScreen());
+              },
               child: const Text(
                 "Create Account",
                 style:
